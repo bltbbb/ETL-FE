@@ -1,127 +1,173 @@
 <template>
-  <div class="TaskGroupConfiguration">
+  <div class="TaskConfiguration">
     <div class="header">
       <h1>任务组配置</h1>
     </div>
-    <div class="form-wrapper">
-      <Form :model="formItem" :label-width="80" inline>
-        <Form-item label="脚本名称">
-          <Input v-model="formItem.input1" placeholder="请输入"></Input>
-        </Form-item>
-        <Form-item label="脚本路径">
-          <Input v-model="formItem.input2" placeholder="请输入"></Input>
-        </Form-item>
-        <Form-item label="开发者">
-          <Input v-model="formItem.input3" placeholder="请输入"></Input>
-        </Form-item>
-      </Form>
-    </div>
-    <div class="table-wrapper">
-      <Table border :columns="columns" :data="data"></Table>
+    <div class="wrapper-father">
+      <div class="btn-wrapper">
+        你选择的任务组是：<Tag style="margin-right: 30px;" color="blue" closable @on-close="closeTag" type="border">{{choosePoint}}</Tag>
+        <Button type="primary" :disabled="btnStatus||rootBtn" @click="change()">编辑</Button>
+        <Button type="primary" :disabled="btnStatus" @click="add()">新增</Button>
+        <Button type="primary" :disabled="btnStatus||rootBtn" @click="add()">删除</Button>
+      </div>
+      <div class="chart-wrapper">
+        <div id="myChart"></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+  import echarts from 'echarts'
   import qs from 'qs'
+
   export default {
     data () {
       return {
-        formItem:{
-          input1: '',
-          input2: '',
-          input3: ''
-        },
-        columns: [
-          {
-            title: '脚本ID',
-            key: 'pkId',
-            width: 100
+        pkId: 0,
+        choosePoint: '未选择',
+        myChart: null,
+        btnStatus: true,
+        rootBtn: true,
+        links: [],
+        chartData: [],
+        options: {
+          title:{
+            text: "任务组配置",
+            top: "30",
+            left: "center"
           },
-          {
-            title: '脚本名称',
-            key: 'scriptName'
+          tooltip: {
+            formatter:function (params) {
+                if(params.data.groupName){
+                  return `<div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>任务组名称：${params.data.groupName}<div>
+                          <div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>运行状态：${params.data.runningMessage}<div>`
+                }
+            },
+            padding: 5
           },
-          {
-            title: '脚本key',
-            key: 'scriptKey'
-          },
-          {
-            title: '参数',
-            key: 'presetParam',
-            width: 500
-          },
-          {
-            title: '开发者',
-            key: 'createUser',
-            width: 100
-          },
-          {
-            title: '状态',
-            key: 'status',
-            width: 100
-          },
-          {
-            title: '操作',
-            key: 'action',
-            width: 150,
-            align: 'center',
-            render: (h, params) => {
-              return h('div', [
-                h('Button', {
-                  props: {
-                    type: 'primary',
-                    size: 'small'
-                  },
-                  style: {
-                    marginRight: '5px'
-                  },
-                  on: {
-                    click: () => {
-                      this.show(params.index)
-                    }
-                  }
-                }, '编辑'),
-                h('Button', {
-                  props: {
-                    type: 'error',
-                    size: 'small'
-                  },
-                  on: {
-                    click: () => {
-                      this.remove(params.index)
-                    }
-                  }
-                }, '删除')
-              ]);
+          toolbox: {
+            show : true,
+            feature : {
+              dataView : {show: true, readOnly: true},
+              restore : {show: true},
+              saveAsImage : {show: true}
             }
-          }
-        ],
-        data: []
+          },
+          animationDuration: 1500,
+          animationEasing: 'cubicOut',
+          animationEasingUpdate: 'quinticInOut',
+          hoverAnimation:true,
+          series: [
+              {
+            type: 'graph',
+            layout: 'circular',
+            force: {
+              repulsion: 500,
+              edgeLength:[10, 50]
+            },
+            data: [],
+            links: [],
+            edgeSymbol: ['circle', 'arrow'],
+            symbolSize: 20,
+            edgeSymbolSize: [4, 7],
+            focusNodeAdjacency: true,
+            roam: true,
+            label: {
+              normal: {
+                show: true,
+                position: 'top',
+
+              }
+            },
+            lineStyle: {
+              normal: {
+                color: 'source',
+                curveness: 0.1,
+                type: "solid"
+              }
+            }
+          }]
+        }
       }
     },
     mounted(){
-      this.init()
+      this.drawLine();
+      this.init();
     },
     methods: {
       init(){
-        let data = {
-          current: 1,
-          size: 20,
-          scriptName: '交互追踪'
-        }
-//        this.$http.post('http://192.168.1.21:8888/javaScript/page',qs.stringify(data)).then(res=>{
-//            this.data = res.data.result.result
-//        })
+        this.$http.get(this.$store.state.domain+'/group').then(res=>{
+          let data = res.data.result.result;
+          for (let i in data){
+            if(data[i].runningState == 1){
+                data[i].itemStyle = {};
+              data[i].itemStyle.normal = {};
+                data[i].itemStyle.normal.color = '#17a05e'
+            }
+            data[i].name = data[i].groupName
+          }
+          data.unshift({
+            name:"root",
+            pkId:"-1",
+            groupName: "root",
+            itemStyle:{
+              normal:{
+                color: '#17a05e'
+              }
+            }
+          });
+          this.chartData = data;
+          this.$http.get(this.$store.state.domain+'/confRelyGroup').then(res=>{
+            let data = res.data.result.result;
+            for (let i in data){
+              if(data[i].relygroupName == null){data[i].relygroupName = 'root'}
+              this.links.push({
+                "source": data[i].relygroupName,
+                "target": data[i].groupName
+              })
+            }
+            this.myChart.setOption({
+              series: [{
+                // 根据名字对应到相应的系列
+                data: this.chartData,
+                links: this.links
+              }]
+            })
+          });
+        });
       },
-      show (index) {
-        this.$Modal.info({
-          title: '用户信息',
-          content: `姓名：${this.data6[index].name}<br>年龄：${this.data6[index].age}<br>地址：${this.data6[index].address}`
-        })
+      treeClick(evt){
+          this.btnStatus = false;
       },
-      remove (index) {
-        this.data6.splice(index, 1);
+      closeTag(){
+        this.btnStatus = true;
+        this.rootBtn = false;
+        this.choosePoint = '未选择'
+      },
+      change(){
+        this.$router.push({ name: 'TaskGroupConfigurationDetail', params: { groupId: this.pkId,add: false }})
+      },
+      add(){
+        this.$router.push({ name: 'TaskGroupConfigurationDetail', params: { groupId: this.pkId,add: true }})
+      },
+      drawLine(){
+        // 基于准备好的dom，初始化echarts实例
+        this.myChart = echarts.init(document.getElementById('myChart'));
+        this.myChart.setOption(this.options);
+        //添加点击事件
+        this.myChart.on('click', params=> {
+          // 弹窗打印数据的名称
+          if(params.data.groupName == 'root'){
+            this.rootBtn = true;
+          }else{
+            this.rootBtn = false;
+          }
+          this.btnStatus = false;
+          this.choosePoint = params.data.groupName;
+          this.pkId = params.data.pkId;
+        });
+        window.onresize = this.myChart.resize;
       }
     }
   }
@@ -129,7 +175,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
-  .TaskGroupConfiguration
+  .TaskConfiguration
     padding: 0 20px
     .header
       padding-top: 30px
@@ -139,6 +185,30 @@
     .form-wrapper
       margin-top: 30px
       padding: 15px 0
-    .table-wrapper
-      margin-bottom: 30px
+    .wrapper-father
+      overflow: hidden
+      .btn-wrapper
+        margin: 15px 0 0 10px
+      .tree-wrapper
+        float: left
+        width: 100%
+        height: 600px
+        margin: 10px 0 30px 10px
+        h3
+          font-size: 18px
+          padding-bottom: 15px
+      .add-wrapper
+        float: left
+        padding: 30px 0 50px 130px
+        border-left: 1px solid #ccc
+        margin-bottom: 30px
+        h3
+          font-size: 18px
+          padding-bottom: 15px
+    .treeclass
+      width: 100%
+      height: 650px
+    #myChart
+      width: 100%
+      height: 800px
 </style>

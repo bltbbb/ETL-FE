@@ -69,3 +69,23 @@ abbr, acronym {
   padding: 0 0 0 2px;
 }
 
+.ivu-icon-ios-close-empty {
+  z-index: 999
+}
+
+._transfer {
+  display: inline-block;
+}
+
+.ivu-modal-body {
+  text-align: center;
+}
+
+td {
+  word-break:keep-all; /* for ie */
+  white-space:nowrap; /* for chrome */
+}
+
+.ivu-select-single,.ivu-form-item-content {
+  text-align: left;
+}

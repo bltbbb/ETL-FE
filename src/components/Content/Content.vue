@@ -24,8 +24,8 @@
       </i-col>
       <i-col span="21">
         <div class="layout-ceiling">
-          <div class="layout-ceiling-main">
-            <span><Icon type="log-out"></Icon></span><a style="padding-left: 5px;" href="#">退出</a>
+          <div class="layout-ceiling-main" style="cursor: pointer;" @click="loginOut">
+            <span><Icon type="log-out"></Icon></span><span style="padding-left: 5px;" href="#">退出</span>
           </div>
         </div>
         <div class="layout-content">
@@ -41,8 +41,14 @@
   </div>
 </template>
 <script>
+  import lockr from 'lockr'
   export default{
-
+    methods:{
+      loginOut(){
+        lockr.rm("userInfo");
+        this.$router.push('/Login');
+      }
+    }
   }
 </script>
 <style scoped lang="sass">

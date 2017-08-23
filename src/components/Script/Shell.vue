@@ -110,7 +110,7 @@
           size: 20,
           scriptName: '交互追踪'
         }
-//        this.$http.post('http://192.168.1.21:8888/javaScript/page',qs.stringify(data)).then(res=>{
+//        this.$http.post(this.$store.state.domain+'/javaScript/page',qs.stringify(data)).then(res=>{
 //            this.data = res.data.result.result
 //        })
       },

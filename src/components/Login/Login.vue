@@ -61,7 +61,7 @@
                   userName: this.formData.user,
                   passWord: this.formData.password
               };
-              this.$http.post('http://192.168.1.21:8888/user/login',qs.stringify(data)).then(res=>{
+              this.$http.post(this.$store.state.domain+'/user/login',qs.stringify(data)).then(res=>{
                   if(res.data.status == 0){
                     this.$store.state.userInfo = res.data.result;
                     lockr.set("userInfo",res.data.result);      //将数据存入localStorage 以便免登陆应用

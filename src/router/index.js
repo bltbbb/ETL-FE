@@ -7,6 +7,7 @@ import Python from '@/components/Script/Python'
 import Shell from '@/components/Script/Shell'
 import TaskConfiguration from '@/components/TaskConfiguration/TaskConfiguration'
 import TaskGroupConfiguration from '@/components/TaskGroupConfiguration/TaskGroupConfiguration'
+import TaskGroupConfigurationDetail from '@/components/TaskGroupConfiguration/TaskGroupConfigurationDetail'
 
 Vue.use(Router)
 
@@ -15,6 +16,11 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path: '/Login',
       name: 'Login',
       component: Login
     },
@@ -47,6 +53,11 @@ export default new Router({
           path: '/Content/TaskGroupConfiguration',
           name: 'TaskGroupConfiguration',
           component: TaskGroupConfiguration,
+        },
+        {
+          path: '/Content/TaskGroupConfigurationDetail',
+          name: 'TaskGroupConfigurationDetail',
+          component: TaskGroupConfigurationDetail,
         }
       ]
     },

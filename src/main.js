@@ -9,11 +9,15 @@ import './assets/js/DateFormat';  //datePicker
 import axios from 'axios'
 import Vuex from 'vuex'
 import store from './store/store'
+import Highlight from './components/highlight/highlight.js'
+
 
 Vue.config.productionTip = false;
+Vue.use(Highlight)
 Vue.use(iview);
 Vue.use(Vuex);
 axios.defaults.withCredentials = true;
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 Vue.prototype.$http = axios;
 
