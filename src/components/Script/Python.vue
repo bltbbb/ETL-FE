@@ -32,11 +32,14 @@
             <Form-item label="脚本名称">
               <Input v-model="modalData.scriptName" placeholder="请输入"></Input>
             </Form-item>
+            <Form-item label="脚本key">
+              <Input v-model="modalData.scriptKey" placeholder="请输入"></Input>
+            </Form-item>
             <Form-item label="脚本路径">
               <Input v-model="modalData.scriptPath" placeholder="请输入"></Input>
             </Form-item>
             <Form-item label="参数">
-              <Input v-model="modalData.presetParam" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入..."></Input>
+              <Input v-model="modalData.presetParam" type="textarea" :autosize="{minRows: 3,maxRows: 10}" placeholder="请输入..."></Input>
             </Form-item>
             <Form-item label="开发者">
               <Input v-model="modalData.personal" placeholder="请输入"></Input>
@@ -75,8 +78,8 @@
             width: 200
           },
           {
-            title: '脚本路径',
-            key: 'scriptPath'
+            title: '脚本key',
+            key: 'scriptKey'
           },
           {
             title: '参数',
@@ -138,9 +141,10 @@
         modalVal: false,
         modalData: {
           scriptName: '',
-          scriptPath: '',
+          scriptKey: '',
           presetParam: '',
-          personal: ''
+          personal: '',
+          scriptPath: ''
         },
         totalPages: 1,
         currentPage: 1,
@@ -177,10 +181,11 @@
         this.addChange = 'change';
         this.changeId = data.pkId;
         this.modalData.scriptName = data.scriptName;
-        this.modalData.scriptPath = data.scriptPath;
+        this.modalData.scriptKey = data.scriptKey;
         this.modalData.presetParam = data.presetParam;
         this.modalData.personal = data.personal;
         this.modalData.status = data.status;
+        this.modalData.scriptPath = data.scriptPath;
       },
       remove (data) {
         this.$Modal.confirm({
@@ -246,8 +251,9 @@
       cancel(){
         this.modalData= {
           scriptName: '',
-          scriptPath: '',
+          scriptKey: '',
           presetParam: '',
+          scriptPath: ''
         }
       },
       pageSizeEv(val){

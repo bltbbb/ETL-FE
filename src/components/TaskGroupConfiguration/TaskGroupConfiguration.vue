@@ -8,7 +8,7 @@
         你选择的任务组是：<Tag style="margin-right: 30px;" color="blue" closable @on-close="closeTag" type="border">{{choosePoint}}</Tag>
         <Button type="primary" :disabled="btnStatus||rootBtn" @click="change()">编辑</Button>
         <Button type="primary" :disabled="btnStatus" @click="add()">新增</Button>
-        <Button type="primary" :disabled="btnStatus||rootBtn" @click="add()">删除</Button>
+        <Button type="primary" :disabled="btnStatus||rootBtn" @click="deleteTask">删除</Button>
       </div>
       <div class="chart-wrapper">
         <div id="myChart"></div>
@@ -41,7 +41,7 @@
             formatter:function (params) {
                 if(params.data.groupName){
                   return `<div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>任务组名称：${params.data.groupName}<div>
-                          <div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>运行状态：${params.data.runningMessage}<div>`
+                          <div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>运行状态：${params.data.message}<div>`
                 }
             },
             padding: 5
@@ -97,12 +97,12 @@
     },
     methods: {
       init(){
-        this.$http.get(this.$store.state.domain+'/group').then(res=>{
+        this.$http.get(this.$store.state.domain+'/group/selectRely').then(res=>{
           let data = res.data.result.result;
           for (let i in data){
-            if(data[i].runningState == 1){
+            if(data[i].isSuccess == 1){
                 data[i].itemStyle = {};
-              data[i].itemStyle.normal = {};
+                data[i].itemStyle.normal = {};
                 data[i].itemStyle.normal.color = '#17a05e'
             }
             data[i].name = data[i].groupName
@@ -151,6 +151,21 @@
       add(){
         this.$router.push({ name: 'TaskGroupConfigurationDetail', params: { groupId: this.pkId,add: true }})
       },
+      deleteTask(){
+        this.$http.delete(this.$store.state.domain+'/confRelyGroup',{
+            params:{
+                id:this.pkId
+            }
+        }).then(res=>{
+          if(res.data.status == 0){
+              this.$Message.success('删除成功');
+              this.closeTag();
+              this.init();
+          }else {
+              this.$Message.error('删除失败');
+          }
+        });
+      },
       drawLine(){
         // 基于准备好的dom，初始化echarts实例
         this.myChart = echarts.init(document.getElementById('myChart'));
@@ -166,6 +181,7 @@
           this.btnStatus = false;
           this.choosePoint = params.data.groupName;
           this.pkId = params.data.pkId;
+          console.log(this.pkId)
         });
         window.onresize = this.myChart.resize;
       }

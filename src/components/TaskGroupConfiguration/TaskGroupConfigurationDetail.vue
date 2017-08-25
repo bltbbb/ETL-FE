@@ -218,6 +218,9 @@
                     "target": data[i].tasksName
                   })
                 }
+                if(this.links.length >1){
+                    this.links.shift();
+                }
                 this.chartData = data;
                 this.myChart.setOption({
                   series: [{
@@ -259,6 +262,7 @@
               this.$http.put(this.$store.state.domain+'/group',qs.stringify(data)).then(res=>{
                 if(res.data.status == 0){
                   this.$Message.success('编辑成功');
+                  this.init();
                 }else{
                   this.$Message.error('编辑失败');
                 }
@@ -284,6 +288,7 @@
                 if(res.data.status == 0){
                     this.$Message.success('新增成功');
                     this.targetKeys = [];
+                    this.init();
                 }else{
                     this.$Message.error('新增失败');
                     this.targetKeys = [];

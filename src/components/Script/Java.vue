@@ -35,6 +35,9 @@
               <Form-item label="脚本key">
                 <Input v-model="modalData.scriptKey" placeholder="请输入"></Input>
               </Form-item>
+              <Form-item label="脚本路径">
+                <Input v-model="modalData.scriptPath" placeholder="请输入"></Input>
+              </Form-item>
               <Form-item label="参数">
                 <Input v-model="modalData.presetParam" type="textarea" :autosize="{minRows: 3,maxRows: 10}" placeholder="请输入..."></Input>
               </Form-item>
@@ -140,7 +143,8 @@
           scriptName: '',
           scriptKey: '',
           presetParam: '',
-          personal: ''
+          personal: '',
+          scriptPath: ''
         },
         totalPages: 1,
         currentPage: 1,
@@ -181,6 +185,7 @@
         this.modalData.presetParam = data.presetParam;
         this.modalData.personal = data.personal;
         this.modalData.status = data.status;
+        this.modalData.scriptPath = data.scriptPath;
       },
       remove (data) {
         this.$Modal.confirm({
@@ -248,6 +253,7 @@
             scriptName: '',
             scriptKey: '',
             presetParam: '',
+            scriptPath: ''
         }
       },
       pageSizeEv(val){

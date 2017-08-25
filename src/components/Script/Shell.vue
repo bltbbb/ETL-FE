@@ -1,10 +1,10 @@
 <template>
-  <div class="Shell">
+  <div class="Java">
     <div class="header">
-      <h1>Shell脚本</h1>
+      <h1>JAVA脚本</h1>
     </div>
     <div class="form-wrapper">
-      <Form :model="formItem" :label-width="80" inline>
+      <Form :model="formItem" :label-width="60" inline>
         <Form-item label="脚本名称">
           <Input v-model="formItem.input1" placeholder="请输入"></Input>
         </Form-item>
@@ -14,16 +14,50 @@
         <Form-item label="开发者">
           <Input v-model="formItem.input3" placeholder="请输入"></Input>
         </Form-item>
+        <Button type="primary" @click="search()">搜索</Button>
+        <Button style="float: right;" type="success" @click="add()">新增</Button>
       </Form>
     </div>
     <div class="table-wrapper">
       <Table border :columns="columns" :data="data"></Table>
+    </div>
+    <div class="modal-wrapper">
+      <Modal
+        v-model="modalVal"
+        title="编辑考核内容"
+        @on-ok="ok"
+        @on-cancel="cancel">
+        <div class="form-wrapper">
+          <Form :model="modalData" :label-width="80">
+            <Form-item label="脚本名称">
+              <Input v-model="modalData.scriptName" placeholder="请输入"></Input>
+            </Form-item>
+            <Form-item label="脚本key">
+              <Input v-model="modalData.scriptKey" placeholder="请输入"></Input>
+            </Form-item>
+            <Form-item label="脚本路径">
+              <Input v-model="modalData.scriptPath" placeholder="请输入"></Input>
+            </Form-item>
+            <Form-item label="参数">
+              <Input v-model="modalData.presetParam" type="textarea" :autosize="{minRows: 3,maxRows: 10}" placeholder="请输入..."></Input>
+            </Form-item>
+            <Form-item label="开发者">
+              <Input v-model="modalData.personal" placeholder="请输入"></Input>
+            </Form-item>
+          </Form>
+        </div>
+      </Modal>
+    </div>
+    <div class="page-wrapper">
+      <Page :total="totalPages" :current="currentPage" :page-size="pageSize" @on-change="pageSizeEv" @on-page-size-change="pageSizeChangeEv"  show-elevator show-sizer placement="top" :page-size-opts="[10,20,50]"></Page>
     </div>
   </div>
 </template>
 
 <script>
   import qs from 'qs'
+  import lockr from 'lockr'
+  import Highlight from '../highlight/Highlight.vue'
   export default {
     data () {
       return {
@@ -36,11 +70,12 @@
           {
             title: '脚本ID',
             key: 'pkId',
-            width: 100
+            width: 80
           },
           {
             title: '脚本名称',
-            key: 'scriptName'
+            key: 'scriptName',
+            width: 200
           },
           {
             title: '脚本key',
@@ -49,22 +84,27 @@
           {
             title: '参数',
             key: 'presetParam',
-            width: 500
+            width: 500,
+            render: (h, params) => {
+              return h(Highlight, {
+                props: {
+                  codeJson: params.row.presetParam
+                }
+              });
+            }
           },
           {
             title: '开发者',
-            key: 'createUser',
-            width: 100
+            key: 'personal'
           },
           {
             title: '状态',
             key: 'status',
-            width: 100
+            width: 80
           },
           {
             title: '操作',
             key: 'action',
-            width: 150,
             align: 'center',
             render: (h, params) => {
               return h('div', [
@@ -78,7 +118,7 @@
                   },
                   on: {
                     click: () => {
-                      this.show(params.index)
+                      this.show(params.row)
                     }
                   }
                 }, '编辑'),
@@ -89,7 +129,7 @@
                   },
                   on: {
                     click: () => {
-                      this.remove(params.index)
+                      this.remove(params.row)
                     }
                   }
                 }, '删除')
@@ -97,39 +137,143 @@
             }
           }
         ],
-        data: []
+        data: [],
+        modalVal: false,
+        modalData: {
+          scriptName: '',
+          scriptKey: '',
+          presetParam: '',
+          personal: '',
+          scriptPath: ''
+        },
+        totalPages: 1,
+        currentPage: 1,
+        pageSize: 10,
+        addChange: 'add',
+        changeId: '',
+        userInfo: []
       }
     },
     mounted(){
-      this.init()
+      this.init();
+      this.userInfo = lockr.get('userInfo');
+      this.modalData.personal = this.userInfo.userName;
     },
     methods: {
       init(){
-        let data = {
-          current: 1,
-          size: 20,
-          scriptName: '交互追踪'
-        }
-//        this.$http.post(this.$store.state.domain+'/javaScript/page',qs.stringify(data)).then(res=>{
-//            this.data = res.data.result.result
-//        })
+        this.getPage()
       },
-      show (index) {
-        this.$Modal.info({
-          title: '用户信息',
-          content: `姓名：${this.data6[index].name}<br>年龄：${this.data6[index].age}<br>地址：${this.data6[index].address}`
+      getPage(){
+        let data = {
+          current: this.currentPage,
+          size: this.pageSize,
+          scriptName: this.formItem.input1,
+          scriptPath: this.formItem.input2,
+          personal: this.formItem.input3
+        };
+        this.$http.post(this.$store.state.domain+'/shellScript/page',qs.stringify(data)).then(res=>{
+          this.data = res.data.result.result;
+          this.totalPages = res.data.result.total;
         })
       },
-      remove (index) {
-        this.data6.splice(index, 1);
+      show (data) {
+        this.modalVal = true;
+        this.addChange = 'change';
+        this.changeId = data.pkId;
+        this.modalData.scriptName = data.scriptName;
+        this.modalData.scriptKey = data.scriptKey;
+        this.modalData.presetParam = data.presetParam;
+        this.modalData.personal = data.personal;
+        this.modalData.status = data.status;
+        this.modalData.scriptPath = data.scriptPath;
+      },
+      remove (data) {
+        this.$Modal.confirm({
+          title: '确认删除该任务吗',
+          okText: '确认',
+          cancelText: '取消',
+          onOk: () => {
+            this.$http.delete(this.$store.state.domain+'/shellScript',{
+              params: {
+                id:data.pkId
+              }
+            }).then(res=>{
+              if(res.data.status == 0){
+                this.$Message.success('删除成功');
+                this.getPage();
+              }else {
+                this.$Message.error('删除失败');
+              }
+            })
+          },
+          onCancel: () => {
+            this.$Modal.remove()
+          }
+        });
+
+      },
+      search(){
+        if(this.formItem.input1 == '' && this.formItem.input2 == '' && this.formItem.input3 == ''){
+          this.$Message.error('未输入任何查询条件，默认查询全部')
+        }
+        this.getPage();
+      },
+      add(){
+        this.addChange = 'add';
+        this.modalVal = true;
+      },
+      ok(){
+        if(this.addChange == 'add'){
+          this.$http.post(this.$store.state.domain+'/shellScript',qs.stringify(this.modalData)).then(res=>{
+            if(res.data.status == 0){
+              this.$Message.success('添加成功');
+              this.getPage();
+              this.cancel();
+            }else {
+              this.$Message.error('添加失败');
+              this.cancel();
+            }
+          })
+        }else if(this.addChange == 'change'){
+          this.modalData.pkId = this.changeId;
+          this.$http.put(this.$store.state.domain+'/shellScript',qs.stringify(this.modalData)).then(res=>{
+            if(res.data.status == 0){
+              this.$Message.success('修改成功');
+              this.getPage();
+              this.cancel();
+            }else {
+              this.$Message.error('修改失败');
+              this.cancel();
+            }
+          })
+        }
+      },
+      cancel(){
+        this.modalData= {
+          scriptName: '',
+          scriptKey: '',
+          presetParam: '',
+          scriptPath: ''
+        }
+      },
+      pageSizeEv(val){
+        this.currentPage = val;
+        this.getPage();
+      },
+      pageSizeChangeEv(val){
+        this.pageSize = val;
+        this.getPage();
       }
+    },
+    components:{
+      Highlight
     }
   }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
-  .Shell
+  .Java
     padding: 0 20px
     .header
       padding-top: 30px
@@ -138,7 +282,10 @@
       padding-bottom: 5px
     .form-wrapper
       margin-top: 30px
-      padding: 15px
+      padding: 15px 0
     .table-wrapper
       margin-bottom: 30px
+    .page-wrapper
+      text-align: center
+      margin: 30px 0 35px
 </style>
