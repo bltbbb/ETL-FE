@@ -24,7 +24,8 @@
       <div class="modal-wrapper">
         <Modal
           v-model="modalVal"
-          title="编辑考核内容"
+          :title="titleMsg"
+          width="700"
           @on-ok="ok"
           @on-cancel="cancel">
           <div class="form-wrapper">
@@ -39,7 +40,7 @@
                 <Input v-model="modalData.scriptPath" placeholder="请输入"></Input>
               </Form-item>
               <Form-item label="参数">
-                <Input v-model="modalData.presetParam" type="textarea" :autosize="{minRows: 3,maxRows: 10}" placeholder="请输入..."></Input>
+                <Input v-model="modalData.presetParam" type="textarea" :autosize="{minRows: 8,maxRows: 10}" placeholder="请输入..."></Input>
               </Form-item>
               <Form-item label="开发者">
                 <Input v-model="modalData.personal" placeholder="请输入"></Input>
@@ -97,11 +98,11 @@
             title: '开发者',
             key: 'personal'
           },
-          {
-            title: '状态',
-            key: 'status',
-            width: 80
-          },
+//          {
+//            title: '状态',
+//            key: 'status',
+//            width: 80
+//          },
           {
             title: '操作',
             key: 'action',
@@ -151,7 +152,8 @@
         pageSize: 10,
         addChange: 'add',
         changeId: '',
-        userInfo: []
+        userInfo: [],
+        titleMsg: ''
       }
     },
     mounted(){
@@ -177,6 +179,7 @@
         })
       },
       show (data) {
+        this.titleMsg = '编辑脚本';
         this.modalVal = true;
         this.addChange = 'change';
         this.changeId = data.pkId;
@@ -219,6 +222,7 @@
           this.getPage();
       },
       add(){
+        this.titleMsg = '新增脚本';
         this.addChange = 'add';
         this.modalVal = true;
       },

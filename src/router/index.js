@@ -1,19 +1,25 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Login from '@/components/Login/Login'
-import Content from '@/components/Content/Content'
-import Java from '@/components/Script/Java'
-import Python from '@/components/Script/Python'
-import Shell from '@/components/Script/Shell'
-import TaskConfiguration from '@/components/TaskConfiguration/TaskConfiguration'
-import TaskGroupConfiguration from '@/components/TaskGroupConfiguration/TaskGroupConfiguration'
-import TaskGroupConfigurationDetail from '@/components/TaskGroupConfiguration/TaskGroupConfigurationDetail'
+import Store from '../store/store'
+//路由懒加载
+const Login = () => import('@/components/Login/Login')
+const Content = () => import('@/components/Content/Content')
+const Java = () => import('@/components/Script/Java')
+const Python = () => import('@/components/Script/Python')
+const Shell = () => import('@/components/Script/Shell')
+const TaskConfiguration = () => import('@/components/TaskConfiguration/TaskConfiguration')
+const TaskGroupConfiguration = () => import('@/components/TaskGroupConfiguration/TaskGroupConfiguration')
+const TaskGroupConfigurationDetail = () => import('@/components/TaskGroupConfiguration/TaskGroupConfigurationDetail')
 
 Vue.use(Router)
 
-export default new Router({
+const router =  new Router({
   mode: 'history',
   routes: [
+    {
+      path: '/',
+      redirect: '/Content/Java'
+    },
     {
       path: '/',
       name: 'Login',
@@ -63,3 +69,14 @@ export default new Router({
     },
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  var nameTemp = to.name;
+  if(to.name == 'TaskGroupConfigurationDetail'){
+    nameTemp = 'TaskGroupConfiguration'
+  }
+  Store.state.menuName = nameTemp;
+  next();
+})
+
+export default router;

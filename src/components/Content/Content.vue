@@ -2,21 +2,21 @@
   <div class="layout">
     <Row type="flex">
       <i-col span="3" class="layout-menu-left">
-        <Menu active-name="1-1" theme="dark" width="auto" :open-names="['1']">
+        <Menu :active-name="menuName" theme="dark" width="auto" :open-names="['1']">
           <Submenu name="1">
             <template slot="title">
               <Icon type="document-text"></Icon>
               脚本配置
             </template>
-            <Menu-item name="1-1"><router-link to="/Content/Java">JAVA脚本</router-link></Menu-item>
-            <Menu-item name="1-2"><router-link to="/Content/Python">Python脚本</router-link></Menu-item>
-            <Menu-item name="1-3"><router-link to="/Content/Shell">Shell脚本</router-link></Menu-item>
+            <Menu-item name="Java"><router-link to="/Content/Java">JAVA脚本</router-link></Menu-item>
+            <Menu-item name="Python"><router-link to="/Content/Python">Python脚本</router-link></Menu-item>
+            <Menu-item name="Shell"><router-link to="/Content/Shell">Shell脚本</router-link></Menu-item>
           </Submenu>
-          <Menu-item name="2" class="singleItem">
+          <Menu-item name="TaskConfiguration" class="singleItem">
             <router-link to="/Content/TaskConfiguration"><Icon type="document"></Icon>
             <span style="padding-left: 9px;" class="layout-text">任务配置</span></router-link>
           </Menu-item>
-          <Menu-item name="3" class="singleItem">
+          <Menu-item name="TaskGroupConfiguration" class="singleItem">
             <router-link to="/Content/TaskGroupConfiguration"><Icon type="clipboard"></Icon>
             <span style="padding-left: 9px;" class="layout-text">任务组配置</span></router-link>
           </Menu-item>
@@ -43,6 +43,14 @@
 <script>
   import lockr from 'lockr'
   export default{
+    data(){
+        return {
+            menuName: ''
+        }
+    },
+    mounted(){
+      this.menuName = this.$store.state.menuName;
+    },
     methods:{
       loginOut(){
         lockr.rm("userInfo");

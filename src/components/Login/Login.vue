@@ -40,7 +40,7 @@
           showScreen: false,
           formData: {
             user: 'admin',
-            password: 'admin'
+            password: 'adminadmin123456'
           },
           ruleInline: {
             user: [

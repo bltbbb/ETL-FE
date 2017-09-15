@@ -8,6 +8,7 @@ function resolve (dir) {
 }
 
 module.exports = {
+  devtool: 'cheap-module-source-map', //生产环境打包去除source map
   entry: {
     app: './src/main.js'
   },

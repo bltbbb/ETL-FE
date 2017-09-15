@@ -18,7 +18,7 @@
     <div class="modal-wrapper">
       <Modal
         v-model="modalVal"
-        title="编辑考核内容"
+        title="编辑任务配置"
         @on-ok="ok"
         width="600"
         @on-cancel="cancel">
@@ -40,10 +40,10 @@
               </Select>
             </Form-item>
             <Form-item label="调度任务描述">
-              <Input v-model="modalData.remark" placeholder="请输入"></Input>
+              <Input v-model="modalData.remark" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入"></Input>
             </Form-item>
             <Form-item label="任务耗时">
-              <Input-number v-model="modalData.takeEval" placeholder="请输入"></Input-number>
+              <Input-number v-model="modalData.takeEval" placeholder="请输入"></Input-number>&nbsp;&nbsp;&nbsps
             </Form-item>
             <Form-item label="延迟警告">
               <Input v-model="modalData.alarmNotice" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入..."></Input>

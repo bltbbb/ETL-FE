@@ -89,3 +89,7 @@ td {
 .ivu-select-single,.ivu-form-item-content {
   text-align: left;
 }
+
+.btn-block .ivu-col {
+  padding-right: 0!important;
+}

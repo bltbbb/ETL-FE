@@ -8,6 +8,9 @@
           <Tab-pane label="配置">
             <div class="form-wrapper">
               <Form :model="formItem" :label-width="100">
+                <Form-item label="所属任务组" v-if="this.$route.params.add">
+                  <Input v-model="fatherName" readonly placeholder="请输入"></Input>
+                </Form-item>
                 <Form-item label="任务组名称">
                   <Input v-model="formItem.groupName" placeholder="请输入"></Input>
                 </Form-item>
@@ -18,7 +21,7 @@
                   <Date-picker type="datetime" placeholder="选择日期和时间" :value="formItem.effectiveEnd" @on-change="endTime" style="width: 200px"></Date-picker>
                 </Form-item>
                 <Form-item label="任务分组描述">
-                  <Input v-model="formItem.remark" placeholder="请输入"></Input>
+                  <Input v-model="formItem.remark" type="textarea" :autosize="{minRows: 2,maxRows: 5}"  placeholder="请输入"></Input>
                 </Form-item>
                 <Form-item label="Cron任务表达式">
                   <Input v-model="formItem.tasksCron" placeholder="请输入"></Input>
@@ -43,7 +46,7 @@
           <Tab-pane label="依赖">
             <div class="btn-wrapper">
               <Button :disabled="btnStatus" type="primary" @click="addTask">新增</Button>
-              <Button type="primary" style="margin-right: 15px;" :disabled="btnStatus||rootBtn" @click="deleteTask">删除</Button>任务组：<Tag style="margin-right: 30px;" color="blue" closable @on-close="closeTag" type="border">{{choosePoint}}</Tag>
+              <Button type="primary" style="margin-right: 15px;" :disabled="btnStatus||rootBtn" @click="deleteTask">删除</Button>任务组：<Tag style="margin-right: 30px;" :key="item.id" v-for="item in choosePoint" :name="item.name" color="blue" closable @on-close="closeTag" type="border">{{item.name}}</Tag>
             </div>
             <div class="chart-wrapper">
               <div id="myChart"></div>
@@ -77,6 +80,8 @@
     export default {
         data(){
             return{
+              agin: false,
+              choosePoint: [{name:'未选择'}],
               pkId : 0,
               groupId : 0,
               modal: false,
@@ -102,9 +107,10 @@
 //                  left: "left"
 //                },
                 tooltip: {
-                  formatter:function (params) {
-                    if(params.data.groupName){
-                      return `<div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>任务组名称：${params.data.groupName}<div>`
+                  formatter: function (params) {
+                    if (params.data.groupName) {
+                      return `<div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>任务组名称：${params.data.groupName}<div>
+                          <div><span style="display: inline-block;width: 10px;height:10px;background:#17a03e;margin-right: 10px"></span>运行状态：${params.data.message}<div>`
                     }
                   },
                   padding: 5
@@ -149,21 +155,24 @@
                         curveness: 0.1,
                         type: "solid",
                       }
-                    },
-                    itemStyle:{
-                        normal:{
-                            color:'#53a197'
-                        }
                     }
+//                    ,
+//                    itemStyle:{
+//                        normal:{
+//                            color:'#53a197'
+//                        }
+//                    }
                   }]
               },
               chartData: [],
               links: [],
               btnStatus: true,
               rootBtn: true,
-              choosePoint: '未选择',
               myChart: null,
-              deletId: 0
+              deletId: 0,
+              fatherName: '',
+              nameTemp: [],
+              addPageGroupId: ''
             }
         },
         mounted(){
@@ -173,7 +182,11 @@
         },
         methods:{
             initParams(){
-              this.groupId = this.$route.params.groupId;
+              if(this.$route.params.add){
+                  this.groupId = this.$route.params.groupId;
+              }else {
+                  this.groupId = this.$route.params.groupId[0].id;
+              }
               this.getTaskData();
             },
             init(){
@@ -190,6 +203,27 @@
                       links: this.links
                     }]
                   });
+                  if(this.groupId == -1){
+                    this.fatherName = 'root';
+                  }else {
+                    let nameTemp = [];
+                    let count = 0;
+                    let length = this.groupId.length;
+                    this.groupId.forEach((item)=> {
+                      this.$http.get(this.$store.state.domain+'/group',{
+                        params:{
+                          id:item.id
+                        }
+                      }).then(res=>{
+                        count++;
+                        let data = res.data.result.result[0];
+                        nameTemp.push(data.groupName);
+                        if(count == length){
+                          this.fatherName = nameTemp.join(',')
+                        }
+                      });
+                    })
+                  }
                   return;
               }
               this.$http.get(this.$store.state.domain+'/confRelyTasks',{
@@ -199,10 +233,13 @@
               }).then(res=>{
                 let data = res.data.result.result;
                 for (let i in data){
-                  if(data[i].runningState == 1){
+                  if(data[i].isSuccess == 1){
                     data[i].itemStyle = {};
                     data[i].itemStyle.normal = {};
                     data[i].itemStyle.normal.color = '#17a05e'
+                    data[i].message = '成功'
+                  }else {
+                    data[i].message = '失败'
                   }
                   data[i].name = data[i].tasksName
                 }
@@ -210,6 +247,11 @@
                   name:"root",
                   pkId:"-1",
                   tasksName: "root",
+                  itemStyle: {
+                    normal: {
+                      color: '#17a05e'
+                    }
+                  }
                 });
                 for (let i in data){
                   if(data[i].relytasksName == null){data[i].relytasksName = 'root'}
@@ -218,10 +260,18 @@
                     "target": data[i].tasksName
                   })
                 }
-                if(this.links.length >1){
+                if(this.links.length >=1){
                     this.links.shift();
                 }
-                this.chartData = data;
+                let dataTemp = [];
+                let objTemp = {};
+                data.forEach((val) => {
+                  if(!objTemp[val.tasksId]){
+                      dataTemp.push(val);
+                      objTemp[val.tasksId] = -1;
+                  }
+                });
+                this.chartData = dataTemp;
                 this.myChart.setOption({
                   series: [{
                     // 根据名字对应到相应的系列
@@ -248,10 +298,16 @@
           pushChange(){
             if(this.$route.params.add){
               let data = this.formItem;
-              data.pkId = this.groupId;
+              let dataTemp = [];
+              this.groupId.forEach((item)=> {
+                dataTemp.push(item.id);
+              });
+              dataTemp = dataTemp.join(',');
+              data.fatherId = dataTemp;
               this.$http.post(this.$store.state.domain+'/group',qs.stringify(data)).then(res=>{
                 if(res.data.status == 0){
                   this.$Message.success('新增成功');
+                  this.groupId = res.data.result.result.pkId;
                 }else{
                   this.$Message.error('新增失败');
                 }
@@ -269,13 +325,46 @@
               });
             }
           },
-          closeTag(){
-            this.btnStatus = true;
-            this.choosePoint = '未选择';
-            this.rootBtn = true;
+          closeTag(ev, name){
+            let index = 0;
+            this.choosePoint.forEach((val,i)=> {
+              if(val.name == name){
+                index = i;
+              }
+            });
+            this.choosePoint.splice(index, 1);
+            for (let i in this.chartData) {
+              if (this.chartData[i].tasksName == name) {
+                this.chartData[i].symbolSize = 20;
+                console.log(this.chartData)
+                if (this.chartData[i].isSuccess == 1) {
+                  this.chartData[i].itemStyle.normal.color = '#17a05e'
+                } else {
+                  this.chartData[i].itemStyle.normal.color = '#c23531'
+                }
+              }
+            }
+            this.myChart.setOption({
+              series: [{
+                // 根据名字对应到相应的系列
+                data: this.chartData
+              }]
+            });
+            if(this.choosePoint.length < 1){
+              this.choosePoint.push({name:'未选择'})
+            }
+            if(this.choosePoint[0].name == '未选择'){
+              this.btnStatus = true;
+              this.rootBtn = false;
+            }
           },
           ok(){
             let data = [];
+            let dataTemp = [];
+            this.choosePoint.forEach((item)=> {
+              dataTemp.push(item.id);
+            });
+            dataTemp = dataTemp.join(',');
             this.targetKeys.forEach((val)=> {
               data.push({
                 groupId: this.groupId,
@@ -284,11 +373,14 @@
               })
             });
             data = JSON.stringify(data);
-            this.$http.post(this.$store.state.domain+'/confRelyTasks',qs.stringify({entityList:data})).then(res=>{
+            this.$http.post(this.$store.state.domain+'/confRelyTasks',qs.stringify({entityList:data,fatherId:dataTemp})).then(res=>{
                 if(res.data.status == 0){
                     this.$Message.success('新增成功');
+                    this.$route.params.add = false;
                     this.targetKeys = [];
                     this.init();
+                    this.closeTag();
+                    this.getTaskData();
                 }else{
                     this.$Message.error('新增失败');
                     this.targetKeys = [];
@@ -304,6 +396,14 @@
             this.modal = true;
           },
           deleteTask(){
+            if(this.choosePoint.length > 1){
+              this.$Message.error('请只保留一个选项');
+              return;
+            }
+            if(this.choosePoint[0].name == '未选择'){
+              return;
+            }
+            this.deleteId = this.choosePoint[0].id;
             this.$Modal.confirm({
               title: '确认删除该任务吗',
               okText: '确认',
@@ -320,7 +420,9 @@
                   if(res.data.status == 1){
                     this.$Message.error('该任务存在子级，禁止删除。')
                   }else {
-                    this.$Message.success('删除成功')
+                    this.$Message.success('删除成功');
+                    this.init();
+                    this.closeTag();
                   }
                 });
               },
@@ -365,16 +467,41 @@
             this.myChart.setOption(this.options);
             //添加点击事件
             this.myChart.on('click', params=> {
-              // 弹窗打印数据的名称
+              if(!params.data.tasksName){
+                  return;
+              }
               if(params.data.tasksName == 'root'){
                 this.rootBtn = true;
               }else{
                 this.rootBtn = false;
               }
               this.btnStatus = false;
-              this.choosePoint = params.data.tasksName;
-              this.pkId = params.data.pkId;
-              this.deleteId = this.pkId;
+              if(this.choosePoint[0].name == '未选择'){
+                this.choosePoint.shift();
+              }
+              this.agin = false;
+              this.choosePoint.forEach((val,i)=> {
+                if(val.name == params.data.tasksName){
+                  this.agin = true;
+                }
+              });
+              if(this.agin){return}
+              this.choosePoint.push({
+                name:params.data.tasksName,
+                id: params.data.tasksId
+              });
+              for (let i in this.chartData) {
+                if (this.chartData[i].tasksName == params.data.tasksName) {
+                  this.chartData[i].itemStyle.normal.color = '#2d8cf0';
+                  this.chartData[i].symbolSize = 30;
+                }
+              }
+              this.myChart.setOption({
+                series: [{
+                  // 根据名字对应到相应的系列
+                  data: this.chartData
+                }]
+              })
             });
             window.onresize = this.myChart.resize;
           }
