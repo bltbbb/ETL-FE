@@ -1,9 +1,18 @@
 <template>
   <div class="TaskConfiguration">
     <div class="header">
-      <h1>任务组配置</h1>
+      <h1 style="display: inline;">任务组配置</h1>
+      <div class="selectWrapper">
+        <span>请选择任务组：</span>
+        <div class="classSelect">
+          <Select @on-change="classChange" v-model="classModel" filterable>
+            <Option v-for="(item,index) in classData" :value="item.pkId" :key="index">{{ item.classifyName }}</Option>
+          </Select>
+        </div>
+      </div>
     </div>
     <div class="wrapper-father">
+
       <div class="btn-wrapper">
         <div class="tag-block">
           你选择的任务组是：
@@ -23,11 +32,11 @@
           <br>
           <Row>
             <Col span="10" style="padding-right:10px;width: 100%;">
-            <div class="select-wrapper">
-              <Select @on-change="selectChange" @on-query-change="queryChange" v-model="model11" filterable>
-                <Option v-for="(item,index) in chartData" :value="index" :key="index">{{ item.name }}</Option>
-              </Select>
-            </div>
+              <div class="select-wrapper">
+                <Select @on-change="selectChange" @on-query-change="queryChange" v-model="model11" filterable>
+                  <Option v-for="(item,index) in chartData" :value="index" :key="index">{{ item.name }}</Option>
+                </Select>
+              </div>
             </Col>
           </Row>
         </div>
@@ -46,6 +55,8 @@
   export default {
     data () {
       return {
+        classModel:'',
+        classData: [],
         groupBtn: true,
         groupBtn2: true,
         groupBtn3: true,
@@ -125,7 +136,14 @@
     },
     methods: {
       init(){
-        this.$http.get(this.$store.state.domain + '/group/selectRely').then(res => {
+        this.classDataGet();
+      },
+      selectRelyGet(){
+        this.$http.get(this.$store.state.domain + '/group/selectRely',{
+          params:{
+            classifyId: this.classModel
+          }
+        }).then(res => {
           let data = res.data.result.result;
           for (let i in data) {
             data[i].itemStyle = {};
@@ -153,26 +171,44 @@
             }
           });
           this.chartData = data;
-          this.$http.get(this.$store.state.domain + '/confRelyGroup').then(res => {
-            let data = res.data.result.result;
-            for (let i in data) {
-              if (data[i].relygroupName == null) {
-                data[i].relygroupName = 'root'
-              }
-              this.links.push({
-                "source": data[i].relygroupName,
-                "target": data[i].groupName
-              })
-            }
-            this.myChart.setOption({
-              series: [{
-                // 根据名字对应到相应的系列
-                data: this.chartData,
-                links: this.links
-              }]
-            })
-          });
+          this.relyGroupGet();
         });
+      },
+      relyGroupGet(){
+        this.$http.get(this.$store.state.domain + '/confRelyGroup',{
+          params:{
+            classifyId: this.classModel
+          }
+        }).then(res => {
+          let data = res.data.result.result;
+          for (let i in data) {
+            if (data[i].relygroupName == null) {
+              data[i].relygroupName = 'root'
+            }
+            this.links.push({
+              "source": data[i].relygroupName,
+              "target": data[i].groupName
+            })
+          }
+          this.myChart.setOption({
+            series: [{
+              // 根据名字对应到相应的系列
+              data: this.chartData,
+              links: this.links
+            }]
+          })
+        });
+      },
+      classDataGet(){
+        this.$http.get(this.$store.state.domain + '/classify/selectList').then(res => {
+          let data = res.data.result.result;
+          this.classData = data;
+          this.classModel = data[0].pkId;
+          this.selectRelyGet();
+        });
+      },
+      classChange(val){
+        this.selectRelyGet();
       },
       treeClick(evt){
         this.btnStatus = false;
@@ -250,7 +286,7 @@
           if (res.data.status == 0) {
             this.$Message.success('删除成功');
             this.closeTag();
-            this.init();
+            this.selectRelyGet();
           } else {
             this.$Message.error('删除失败');
           }
@@ -271,7 +307,7 @@
                 this.canRun = false;
                 this.$Message.success('执行成功');
                 this.closeTag();
-                this.init();
+                this.selectRelyGet();
             }else {
                 this.$Message.error('执行失败');
             }
@@ -418,4 +454,12 @@
     #myChart
       width: 100%
       height: 800px
+  .selectWrapper
+    float: right
+    display: inline-block
+    span
+      font-size: 16px
+    .classSelect
+      width: 200px
+      display: inline-block
 </style>

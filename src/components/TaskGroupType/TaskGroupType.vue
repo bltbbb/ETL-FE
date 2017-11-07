@@ -1,11 +1,11 @@
 <template>
-  <div class="Java">
+  <div class="TaskGroupType">
     <div class="header">
-      <h1>任务配置</h1>
+      <h1>分类配置</h1>
     </div>
     <div class="form-wrapper">
       <Form :model="formItem" :label-width="60" inline>
-        <Form-item label="脚本名称">
+        <Form-item label="分类名称">
           <Input v-model="formItem.input1" placeholder="请输入"></Input>
         </Form-item>
         <Button type="primary" @click="search">搜索</Button>
@@ -24,29 +24,11 @@
         @on-cancel="cancel">
         <div class="form-wrapper">
           <Form :model="modalData" :label-width="100">
-            <Form-item label="脚本名称">
-              <Input v-model="modalData.tasksName" placeholder="请输入"></Input>
+            <Form-item label="分类名称">
+              <Input v-model="modalData.classifyName" placeholder="请输入"></Input>
             </Form-item>
-            <Form-item label="脚本类型">
-              <Select :disabled="canSearch" v-model="modalData.scriptType">
-                <Option value="1" >Java</Option>
-                <Option value="2" >Python</Option>
-                <Option value="3" >Shell</Option>
-              </Select>
-            </Form-item>
-            <Form-item label="脚本">
-              <Select :disabled="canSearch" v-model="modalData.scriptId" :filterable="!canSearch">
-                <Option v-for="item in scriptList" :value="item.pkId" :key="item.pkId">{{ item.scriptName }}</Option>
-              </Select>
-            </Form-item>
-            <Form-item label="调度任务描述">
+            <Form-item label="分类描述">
               <Input v-model="modalData.remark" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入"></Input>
-            </Form-item>
-            <Form-item label="任务耗时">
-              <Input-number v-model="modalData.takeEval" placeholder="请输入"></Input-number>&nbsp;&nbsp;&nbsps
-            </Form-item>
-            <Form-item label="延迟警告">
-              <Input v-model="modalData.alarmNotice" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入..."></Input>
             </Form-item>
           </Form>
         </div>
@@ -69,28 +51,17 @@
         },
         columns: [
           {
-            title: '脚本ID',
-            key: 'scriptId',
+            title: '分类ID',
+            key: 'pkId',
             width: 100
           },
           {
-            title: '脚本名称',
-            key: 'tasksName',
-            width: 240
+            title: '分类名称',
+            key: 'classifyName'
           },
           {
-            title: '调度任务描述',
-            key: 'remark',
-            width: 260
-          },
-          {
-            title: '任务耗时',
-            key: 'takeEval',
-            width: 100
-          },
-          {
-            title: '延迟警告',
-            key: 'alarmNotice'
+            title: '分类描述',
+            key: 'remark'
           },
           {
             title: '操作',
@@ -131,18 +102,13 @@
         tableData: [],
         modalVal: false,
         modalData: {
-          tasksName: '',
-          remark: '',
-          alarmNotice: '',
-          scriptType: '',
-          takeEval:0,
-          scriptId: ''
+          classifyName: '',
+          remark: ''
         },
         userInfo: {},
         totalPages: 1,
         currentPage: 1,
         pageSize: 10,
-        scriptList: this.scriptListFn(),
         addChange: 'add',
         changeId: '',
         canSearch: false
@@ -161,9 +127,9 @@
         let data = {
           current: this.currentPage,
           size: this.pageSize,
-          tasksName: this.formItem.input1
+          classifyName: this.formItem.input1
         };
-        this.$http.post(this.$store.state.domain+'/tasks/page',qs.stringify(data)).then(res=>{
+        this.$http.post(this.$store.state.domain+'/classify/page',qs.stringify(data)).then(res=>{
           this.tableData = res.data.result.result;
           this.totalPages = res.data.result.total;
         })
@@ -173,12 +139,8 @@
         this.addChange = 'change';
         this.canSearch = true;
         this.changeId = data.pkId;
-        this.modalData.tasksName = data.tasksName;
+        this.modalData.classifyName = data.classifyName;
         this.modalData.remark = data.remark;
-        this.modalData.alarmNotice = data.alarmNotice;
-        this.modalData.scriptType = data.scriptType+'';
-        this.modalData.takeEval = data.takeEval;
-        this.modalData.scriptId = data.scriptId;
       },
       remove (data) {
         this.$Modal.confirm({
@@ -186,7 +148,7 @@
           okText: '确认',
           cancelText: '取消',
           onOk: () => {
-            this.$http.delete(this.$store.state.domain+'/tasks',{
+            this.$http.delete(this.$store.state.domain+'/classify',{
               params:{
                 id: data.pkId
               }
@@ -214,7 +176,7 @@
       },
       ok(){
         if(this.addChange == 'add'){
-          this.$http.post(this.$store.state.domain+'/tasks',qs.stringify(this.modalData)).then(res=>{
+          this.$http.post(this.$store.state.domain+'/classify',qs.stringify(this.modalData)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('新增成功');
               this.getPage();
@@ -227,7 +189,7 @@
           })
         }else if(this.addChange == 'change'){
           this.modalData.pkId = this.changeId;
-          this.$http.put(this.$store.state.domain+'/tasks',qs.stringify(this.modalData)).then(res=>{
+          this.$http.put(this.$store.state.domain+'/classify',qs.stringify(this.modalData)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('修改成功');
               this.getPage();
@@ -242,33 +204,14 @@
       },
       cancel(){
         this.modalData= {
-            tasksName: '',
-            remark: '',
-            alarmNotice: '',
-            scriptType: '',
-            takeEval:0,
-            scriptId: ''
+          classifyName: '',
+          remark: ''
         }
       },
       add(){
-          this.addChange = 'add';
-          this.modalVal = true;
-          this.canSearch = false;
-      },
-      scriptListFn(val){
-        if(val == 1){
-          this.$http.get(this.$store.state.domain+'/javaScript').then(res=>{
-            this.scriptList = res.data.result.result;
-          })
-        }else if(val == 2){
-          this.$http.get(this.$store.state.domain+'/pythonScript').then(res=>{
-            this.scriptList = res.data.result.result;
-          })
-        }else if(val == 3){
-          this.$http.get(this.$store.state.domain+'/shellScript').then(res=>{
-            this.scriptList = res.data.result.result;
-          })
-        }
+        this.addChange = 'add';
+        this.modalVal = true;
+        this.canSearch = false;
       },
       pageSizeEv(val){
         this.currentPage = val;
@@ -278,18 +221,13 @@
         this.pageSize = val;
         this.getPage();
       }
-    },
-    watch:{
-      'modalData.scriptType':function (val) {
-          this.scriptListFn(val)
-      }
     }
   }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
-  .Java
+  .TaskGroupType
     padding: 0 20px
     .header
       padding-top: 30px

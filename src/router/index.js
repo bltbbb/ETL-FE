@@ -8,6 +8,7 @@ const Java = () => import('@/components/Script/Java')
 const Python = () => import('@/components/Script/Python')
 const Shell = () => import('@/components/Script/Shell')
 const TaskConfiguration = () => import('@/components/TaskConfiguration/TaskConfiguration')
+const TaskGroupType = () => import('@/components/TaskGroupType/TaskGroupType')
 const TaskGroupConfiguration = () => import('@/components/TaskGroupConfiguration/TaskGroupConfiguration')
 const TaskGroupConfigurationDetail = () => import('@/components/TaskGroupConfiguration/TaskGroupConfigurationDetail')
 
@@ -49,6 +50,11 @@ const router =  new Router({
           path: '/Content/Shell',
           name: 'Shell',
           component: Shell,
+        },
+        {
+          path: '/Content/TaskGroupType',
+          name: 'TaskGroupType',
+          component: TaskGroupType,
         },
         {
           path: '/Content/TaskConfiguration',

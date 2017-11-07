@@ -16,6 +16,10 @@
             <router-link to="/Content/TaskConfiguration"><Icon type="document"></Icon>
             <span style="padding-left: 9px;" class="layout-text">任务配置</span></router-link>
           </Menu-item>
+          <Menu-item name="TaskGroupType" class="singleItem">
+            <router-link to="/Content/TaskGroupType"><Icon type="clipboard"></Icon>
+              <span style="padding-left: 9px;" class="layout-text">分类配置</span></router-link>
+          </Menu-item>
           <Menu-item name="TaskGroupConfiguration" class="singleItem">
             <router-link to="/Content/TaskGroupConfiguration"><Icon type="clipboard"></Icon>
             <span style="padding-left: 9px;" class="layout-text">任务组配置</span></router-link>
