@@ -9,6 +9,7 @@ import './assets/js/DateFormat';  //datePicker
 import axios from 'axios'
 import Vuex from 'vuex'
 import store from './store/store'
+import VueCookie from 'vue-cookie'
 import Highlight from './components/highlight/highlight.js'
 import lockr from 'lockr'
 
@@ -16,6 +17,7 @@ Vue.config.productionTip = false;
 Vue.use(Highlight)
 Vue.use(iview);
 Vue.use(Vuex);
+Vue.use(VueCookie);
 axios.defaults.withCredentials = true;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 

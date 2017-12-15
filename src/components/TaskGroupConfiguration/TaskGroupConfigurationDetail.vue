@@ -172,7 +172,8 @@
               deletId: 0,
               fatherName: '',
               nameTemp: [],
-              addPageGroupId: ''
+              addPageGroupId: '',
+              token:''
             }
         },
         mounted(){
@@ -182,11 +183,13 @@
         },
         methods:{
             initParams(){
+              this.token = this.$cookie.get('adoptToken');
               if(this.$route.params.add){
                   this.groupId = this.$route.params.groupId;
               }else {
                   this.groupId = this.$route.params.groupId[0].id;
               }
+              this.classifyId = this.$route.params.classifyId;
               this.getTaskData();
             },
             init(){
@@ -212,6 +215,7 @@
                     this.groupId.forEach((item)=> {
                       this.$http.get(this.$store.state.domain+'/group',{
                         params:{
+                          adoptToken : this.token,
                           id:item.id
                         }
                       }).then(res=>{
@@ -228,7 +232,8 @@
               }
               this.$http.get(this.$store.state.domain+'/confRelyTasks',{
                   params:{
-                      id:this.groupId
+                    adoptToken : this.token,
+                    id:this.groupId
                   }
               }).then(res=>{
                 let data = res.data.result.result;
@@ -283,6 +288,7 @@
 
               this.$http.get(this.$store.state.domain+'/group',{
                 params:{
+                  adoptToken : this.token,
                   id:this.groupId
                 }
               }).then(res=>{
@@ -304,6 +310,8 @@
               });
               dataTemp = dataTemp.join(',');
               data.fatherId = dataTemp;
+              data.classifyId = this.classifyId;
+              data.adoptToken = this.token;
               this.$http.post(this.$store.state.domain+'/group',qs.stringify(data)).then(res=>{
                 if(res.data.status == 0){
                   this.$Message.success('新增成功');
@@ -315,6 +323,7 @@
             }else{
               let data = this.formItem;
               data.pkId = this.groupId;
+              data.adoptToken = this.token;
               this.$http.put(this.$store.state.domain+'/group',qs.stringify(data)).then(res=>{
                 if(res.data.status == 0){
                   this.$Message.success('编辑成功');
@@ -367,6 +376,7 @@
             dataTemp = dataTemp.join(',');
             this.targetKeys.forEach((val)=> {
               data.push({
+                adoptToken : this.token,
                 groupId: this.groupId,
                 relytasksId: this.pkId,
                 tasksId: val
@@ -410,6 +420,7 @@
               cancelText: '取消',
               onOk: () => {
                 let data = {
+                  adoptToken : this.token,
                   id: this.deleteId
                 };
                 this.$http.delete(this.$store.state.domain+'/confRelyTasks',{
@@ -432,7 +443,11 @@
             });
           },
           getTaskData () {
-            this.$http.get(this.$store.state.domain+'/tasks/unselected').then(res=>{
+            this.$http.get(this.$store.state.domain+'/tasks/unselected',{
+                params:{
+                  adoptToken : this.token,
+                }
+            }).then(res=>{
               if(res.data.status == 0){
                 let data = res.data.result.result;
                 if(!data){

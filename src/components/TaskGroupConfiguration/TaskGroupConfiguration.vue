@@ -3,7 +3,7 @@
     <div class="header">
       <h1 style="display: inline;">任务组配置</h1>
       <div class="selectWrapper">
-        <span>请选择任务组：</span>
+        <span>请选择任务分类：</span>
         <div class="classSelect">
           <Select @on-change="classChange" v-model="classModel" filterable>
             <Option v-for="(item,index) in classData" :value="item.pkId" :key="index">{{ item.classifyName }}</Option>
@@ -55,6 +55,7 @@
   export default {
     data () {
       return {
+        token:'',
         classModel:'',
         classData: [],
         groupBtn: true,
@@ -131,16 +132,21 @@
       }
     },
     mounted(){
+      this.initParams()
       this.drawLine();
       this.init();
     },
     methods: {
+      initParams () {
+        this.token = this.$cookie.get('adoptToken');
+      },
       init(){
         this.classDataGet();
       },
       selectRelyGet(){
         this.$http.get(this.$store.state.domain + '/group/selectRely',{
           params:{
+            adoptToken : this.token,
             classifyId: this.classModel
           }
         }).then(res => {
@@ -177,6 +183,7 @@
       relyGroupGet(){
         this.$http.get(this.$store.state.domain + '/confRelyGroup',{
           params:{
+            adoptToken : this.token,
             classifyId: this.classModel
           }
         }).then(res => {
@@ -200,7 +207,11 @@
         });
       },
       classDataGet(){
-        this.$http.get(this.$store.state.domain + '/classify/selectList').then(res => {
+        this.$http.get(this.$store.state.domain + '/classify/selectList',{
+            params:{
+              adoptToken : this.token,
+            }
+        }).then(res => {
           let data = res.data.result.result;
           this.classData = data;
           this.classModel = data[0].pkId;
@@ -268,7 +279,7 @@
         this.$router.push({name: 'TaskGroupConfigurationDetail', params: {groupId: this.choosePoint, add: false}})
       },
       add(){
-        this.$router.push({name: 'TaskGroupConfigurationDetail', params: {groupId: this.choosePoint, add: true}})
+        this.$router.push({name: 'TaskGroupConfigurationDetail', params: {groupId: this.choosePoint, add: true, classifyId: this.classModel}})
       },
       deleteTask(){
         if (this.choosePoint.length > 1) {
@@ -280,6 +291,7 @@
         }
         this.$http.delete(this.$store.state.domain + '/confRelyGroup', {
           params: {
+            adoptToken : this.token,
             id: this.choosePoint[0].id
           }
         }).then(res => {
@@ -300,6 +312,7 @@
         this.canRun = true;
         this.$http.get(this.$store.state.domain + '/group/rerun',{
           params:{
+            adoptToken : this.token,
             groupId: this.choosePoint[0].id
           }
         }).then(res=>{
@@ -317,6 +330,7 @@
           const msg = status?'启用成功':'停用成功';
           this.$http.get(this.$store.state.domain + '/group/handle',{
               params:{
+                adoptToken : this.token,
                 groupId: this.choosePoint[0].id,
                 handle: status?1:0
               }

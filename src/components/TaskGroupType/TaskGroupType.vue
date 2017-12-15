@@ -111,20 +111,26 @@
         pageSize: 10,
         addChange: 'add',
         changeId: '',
-        canSearch: false
+        canSearch: false,
+        token:'',
       }
     },
     mounted(){
+      this.initParams()
       this.init();
       this.userInfo = lockr.get('userInfo');
       this.modalData.user = this.userInfo.userName;
     },
     methods: {
+      initParams () {
+        this.token = this.$cookie.get('adoptToken');
+      },
       init(){
         this.getPage();
       },
       getPage(){
         let data = {
+          adoptToken : this.token,
           current: this.currentPage,
           size: this.pageSize,
           classifyName: this.formItem.input1
@@ -150,6 +156,7 @@
           onOk: () => {
             this.$http.delete(this.$store.state.domain+'/classify',{
               params:{
+                adoptToken : this.token,
                 id: data.pkId
               }
             }).then(res=>{
@@ -175,8 +182,13 @@
         this.getPage();
       },
       ok(){
+
         if(this.addChange == 'add'){
-          this.$http.post(this.$store.state.domain+'/classify',qs.stringify(this.modalData)).then(res=>{
+          let data = {
+            adoptToken : this.token,
+            ...this.modalData
+          }
+          this.$http.post(this.$store.state.domain+'/classify',qs.stringify(data)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('新增成功');
               this.getPage();
@@ -189,7 +201,11 @@
           })
         }else if(this.addChange == 'change'){
           this.modalData.pkId = this.changeId;
-          this.$http.put(this.$store.state.domain+'/classify',qs.stringify(this.modalData)).then(res=>{
+          let data = {
+            adoptToken : this.token,
+            ...this.modalData
+          }
+          this.$http.put(this.$store.state.domain+'/classify',qs.stringify(data)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('修改成功');
               this.getPage();

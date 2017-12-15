@@ -153,20 +153,26 @@
         addChange: 'add',
         changeId: '',
         userInfo: [],
+        token:'',
         titleMsg: ''
       }
     },
     mounted(){
+      this.initParams()
       this.init();
       this.userInfo = lockr.get('userInfo');
       this.modalData.personal = this.userInfo.userName;
     },
     methods: {
+      initParams () {
+        this.token = this.$cookie.get('adoptToken');
+      },
       init(){
         this.getPage()
       },
       getPage(){
         let data = {
+          adoptToken : this.token,
           current: this.currentPage,
           size: this.pageSize,
           scriptName: this.formItem.input1,
@@ -198,6 +204,7 @@
           onOk: () => {
             this.$http.delete(this.$store.state.domain+'/pythonScript',{
               params: {
+                adoptToken : this.token,
                 id:data.pkId
               }
             }).then(res=>{
@@ -228,7 +235,11 @@
       },
       ok(){
         if(this.addChange == 'add'){
-          this.$http.post(this.$store.state.domain+'/pythonScript',qs.stringify(this.modalData)).then(res=>{
+          let data = {
+            adoptToken : this.token,
+            ...this.modalData
+          }
+          this.$http.post(this.$store.state.domain+'/pythonScript',qs.stringify(data)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('添加成功');
               this.getPage();
@@ -240,7 +251,11 @@
           })
         }else if(this.addChange == 'change'){
           this.modalData.pkId = this.changeId;
-          this.$http.put(this.$store.state.domain+'/pythonScript',qs.stringify(this.modalData)).then(res=>{
+          let data = {
+            adoptToken : this.token,
+            ...this.modalData
+          }
+          this.$http.put(this.$store.state.domain+'/pythonScript',qs.stringify(data)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('修改成功');
               this.getPage();

@@ -39,8 +39,8 @@
         return {
           showScreen: false,
           formData: {
-            user: 'admin',
-            password: 'adminadmin123456'
+            user: '',
+            password: ''
           },
           ruleInline: {
             user: [
@@ -63,6 +63,7 @@
               };
               this.$http.post(this.$store.state.domain+'/user/login',qs.stringify(data)).then(res=>{
                   if(res.data.status == 0){
+                    this.$cookie.set('adoptToken', res.data.result.adoptToken, 1);
                     this.$store.state.userInfo = res.data.result;
                     lockr.set("userInfo",res.data.result);      //将数据存入localStorage 以便免登陆应用
                     this.$router.push('/Content/Java');

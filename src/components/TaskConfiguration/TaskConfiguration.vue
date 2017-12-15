@@ -145,20 +145,26 @@
         scriptList: this.scriptListFn(),
         addChange: 'add',
         changeId: '',
+        token:'',
         canSearch: false
       }
     },
     mounted(){
+      this.initParams()
       this.init();
       this.userInfo = lockr.get('userInfo');
       this.modalData.user = this.userInfo.userName;
     },
     methods: {
+      initParams () {
+        this.token = this.$cookie.get('adoptToken');
+      },
       init(){
         this.getPage();
       },
       getPage(){
         let data = {
+          adoptToken : this.token,
           current: this.currentPage,
           size: this.pageSize,
           tasksName: this.formItem.input1
@@ -188,6 +194,7 @@
           onOk: () => {
             this.$http.delete(this.$store.state.domain+'/tasks',{
               params:{
+                adoptToken : this.token,
                 id: data.pkId
               }
             }).then(res=>{
@@ -214,7 +221,11 @@
       },
       ok(){
         if(this.addChange == 'add'){
-          this.$http.post(this.$store.state.domain+'/tasks',qs.stringify(this.modalData)).then(res=>{
+          let data = {
+            adoptToken : this.token,
+            ...this.modalData
+          }
+          this.$http.post(this.$store.state.domain+'/tasks',qs.stringify(data)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('新增成功');
               this.getPage();
@@ -227,7 +238,11 @@
           })
         }else if(this.addChange == 'change'){
           this.modalData.pkId = this.changeId;
-          this.$http.put(this.$store.state.domain+'/tasks',qs.stringify(this.modalData)).then(res=>{
+          let data = {
+            adoptToken : this.token,
+            ...this.modalData
+          }
+          this.$http.put(this.$store.state.domain+'/tasks',qs.stringify(data)).then(res=>{
             if(res.data.status == 0){
               this.$Message.success('修改成功');
               this.getPage();
@@ -257,15 +272,27 @@
       },
       scriptListFn(val){
         if(val == 1){
-          this.$http.get(this.$store.state.domain+'/javaScript').then(res=>{
+          this.$http.get(this.$store.state.domain+'/javaScript',{
+              params:{
+                adoptToken : this.token,
+              }
+          }).then(res=>{
             this.scriptList = res.data.result.result;
           })
         }else if(val == 2){
-          this.$http.get(this.$store.state.domain+'/pythonScript').then(res=>{
+          this.$http.get(this.$store.state.domain+'/pythonScript',{
+            params:{
+              adoptToken : this.token,
+            }
+          }).then(res=>{
             this.scriptList = res.data.result.result;
           })
         }else if(val == 3){
-          this.$http.get(this.$store.state.domain+'/shellScript').then(res=>{
+          this.$http.get(this.$store.state.domain+'/shellScript',{
+            params:{
+              adoptToken : this.token,
+            }
+          }).then(res=>{
             this.scriptList = res.data.result.result;
           })
         }
