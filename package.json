@@ -63,7 +63,7 @@
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.18.0",
     "webpack-merge": "^4.1.0",
-    "zip-webpack-plugin": "^2.0.0"
+    "zip-webpack-plugin": "^2.1.0"
   },
   "engines": {
     "node": ">= 4.0.0",

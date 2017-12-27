@@ -67,11 +67,11 @@
                     this.$store.state.userInfo = res.data.result;
                     lockr.set("userInfo",res.data.result);      //将数据存入localStorage 以便免登陆应用
                     this.$router.push('/Content/Java');
-                  }else if(res.data.status == 1){
-                    this.$Message.success('账号或密码错误!');
+                    this.$Message.success('提交成功!');
+                  }else if(res.data.status == 2){
+                    this.$Message.error('账号或密码错误!');
                   }
               });
-              this.$Message.success('提交成功!');
             } else {
               this.$Message.error('请按规则填写!');
             }

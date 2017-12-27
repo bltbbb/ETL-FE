@@ -9,9 +9,9 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    //domain:'http://125.208.1.67:8888', //请求接口
-    //domain:'http://192.168.1.21:8888', //请求接口
-    domain:'http://192.168.1.21:8888', //请求接口
+    //domain:'http://125.208.1.67:9961', //请求接口
+    domain:'http://192.168.1.40:9961', //请求接口
+    //domain:'http://etlapi.workinggo.com', //请求接口
     //保存用户信息
     userInfo: {},
     menuName: 'Java'
@@ -23,3 +23,4 @@ export default new Vuex.Store({
     }
   }
 })
+

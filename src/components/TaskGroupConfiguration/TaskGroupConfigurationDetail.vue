@@ -376,14 +376,13 @@
             dataTemp = dataTemp.join(',');
             this.targetKeys.forEach((val)=> {
               data.push({
-                adoptToken : this.token,
                 groupId: this.groupId,
                 relytasksId: this.pkId,
                 tasksId: val
               })
             });
             data = JSON.stringify(data);
-            this.$http.post(this.$store.state.domain+'/confRelyTasks',qs.stringify({entityList:data,fatherId:dataTemp})).then(res=>{
+            this.$http.post(this.$store.state.domain+'/confRelyTasks',qs.stringify({entityList:data,fatherId:dataTemp,adoptToken: this.token})).then(res=>{
                 if(res.data.status == 0){
                     this.$Message.success('新增成功');
                     this.$route.params.add = false;
