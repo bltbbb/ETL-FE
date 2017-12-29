@@ -219,6 +219,7 @@
         });
       },
       classChange(val){
+        this.choosePoint= [{name: '未选择'}];
         this.selectRelyGet();
       },
       treeClick(evt){
