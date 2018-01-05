@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import iview from 'iview';
 import 'iview/dist/styles/iview.css';    // 使用 CSS
+import './assets/css/Public.css';    // 使用 CSS
 import './assets/js/DateFormat';  //datePicker
 import axios from 'axios'
 import Vuex from 'vuex'

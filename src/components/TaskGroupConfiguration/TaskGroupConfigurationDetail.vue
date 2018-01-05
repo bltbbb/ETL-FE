@@ -424,6 +424,7 @@
                 };
                 this.$http.delete(this.$store.state.domain+'/confRelyTasks',{
                   params:{
+                    adoptToken : this.token,
                     id: this.deleteId
                   }
                 }).then(res=>{
