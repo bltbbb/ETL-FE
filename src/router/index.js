@@ -11,6 +11,7 @@ const TaskConfiguration = () => import('@/components/TaskConfiguration/TaskConfi
 const TaskGroupType = () => import('@/components/TaskGroupType/TaskGroupType')
 const TaskGroupConfiguration = () => import('@/components/TaskGroupConfiguration/TaskGroupConfiguration')
 const TaskGroupConfigurationDetail = () => import('@/components/TaskGroupConfiguration/TaskGroupConfigurationDetail')
+const Log = () => import('@/components/Log/Log')
 
 Vue.use(Router)
 
@@ -70,7 +71,12 @@ const router =  new Router({
           path: '/Content/TaskGroupConfigurationDetail',
           name: 'TaskGroupConfigurationDetail',
           component: TaskGroupConfigurationDetail,
-        }
+        },
+        {
+          path: '/Content/Log',
+          name: 'Log',
+          component: Log,
+        },
       ]
     },
   ]
