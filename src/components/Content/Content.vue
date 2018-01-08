@@ -59,6 +59,7 @@
       loginOut(){
         lockr.rm("userInfo");
         this.$router.push('/Login');
+        this.$cookie.delete('adoptToken');
       }
     }
   }
