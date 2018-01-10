@@ -22,7 +22,7 @@
           </Menu-item>
           <Menu-item name="TaskGroupConfiguration" class="singleItem">
             <router-link to="/Content/TaskGroupConfiguration"><Icon type="clipboard"></Icon>
-            <span style="padding-left: 9px;" class="layout-text">任务组配置</span></router-link>
+            <span style="padding-left: 9px;" class="layout-text">依赖配置</span></router-link>
           </Menu-item>
           <Menu-item name="Log" class="singleItem">
             <router-link to="/Content/Log"><Icon type="clipboard"></Icon>
