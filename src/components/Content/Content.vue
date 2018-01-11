@@ -63,7 +63,7 @@
       loginOut(){
         lockr.rm("userInfo");
         this.$router.push('/Login');
-        this.$cookie.delete('adoptToken');
+        this.$cookie.delete('etl_adoptToken');
       }
     }
   }

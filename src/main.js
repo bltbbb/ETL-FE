@@ -48,7 +48,7 @@ new Vue({
   methods: {
     checkLogin(){
       //检查是否存在Token
-      if (!this.$cookie.get('adoptToken')) {
+      if (!this.$cookie.get('etl_adoptToken')) {
         //如果没有登录状态则跳转到登录页 并移除localstorege
         lockr.rm("userInfo");
         this.$router.push('/login');
@@ -57,7 +57,7 @@ new Vue({
         res => {
           if(res.data.status == 2){
             lockr.rm("userInfo");
-            this.$cookie.delete('adoptToken');
+            this.$cookie.delete('etl_adoptToken');
             this.$router.push('/login');
           }
           return res

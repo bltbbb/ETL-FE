@@ -183,7 +183,7 @@
         },
         methods:{
             initParams(){
-              this.token = this.$cookie.get('adoptToken');
+              this.token = this.$cookie.get('etl_adoptToken');
               if(this.$route.params.add){
                   this.groupId = this.$route.params.groupId;
               }else {

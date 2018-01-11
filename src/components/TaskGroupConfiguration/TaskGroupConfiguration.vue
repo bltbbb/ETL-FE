@@ -138,7 +138,7 @@
     },
     methods: {
       initParams () {
-        this.token = this.$cookie.get('adoptToken');
+        this.token = this.$cookie.get('etl_adoptToken');
       },
       init(){
         this.classDataGet();
