@@ -429,6 +429,7 @@
           }
         }).then(res=>{
           this.$Message.success('成功');
+          this.init();
         })
       }
     }
