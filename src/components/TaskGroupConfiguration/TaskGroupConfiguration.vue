@@ -22,6 +22,7 @@
         </div>
         <div class="btn-block">
           <div class="btn-container" style="float: right;">
+            <Button type="primary" :disabled="btnStatus" @click="Quartz()">Quartz</Button>
             <Button type="primary" :disabled="btnStatus||rootBtn" @click="change()">编辑</Button>
             <Button type="primary" :disabled="btnStatus||groupBtn3" @click="add()">新增</Button>
             <Button type="primary" :disabled="btnStatus||rootBtn" @click="deleteTask">删除</Button>
@@ -415,6 +416,20 @@
             type: 'restore'
           });
         }
+      },
+      Quartz(){
+        if (this.choosePoint.length > 1) {
+          this.$Message.error('请只保留一个选项');
+          return;
+        }
+        this.$http.get(this.$store.state.domain + '/group/Quartz',{
+          params:{
+            adoptToken : this.token,
+            id: this.choosePoint[0].id,
+          }
+        }).then(res=>{
+          this.$Message.success('成功');
+        })
       }
     }
   }
@@ -445,7 +460,7 @@
           width: 70%
           display: inline-block
         .btn-block
-          width: 400px
+          width: 450px
           float: right
       .tree-wrapper
         float: left

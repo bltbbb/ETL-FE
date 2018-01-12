@@ -8,6 +8,9 @@
         <Form-item label="脚本名称">
           <Input v-model="formItem.input1" placeholder="请输入"></Input>
         </Form-item>
+        <Form-item label="scriptPath">
+          <Input v-model="formItem.input2" placeholder="请输入"></Input>
+        </Form-item>
         <Button type="primary" @click="search">搜索</Button>
         <Button style="float: right;" type="success" @click="add">新增</Button>
       </Form>
@@ -24,7 +27,7 @@
         @on-cancel="cancel">
         <div class="form-wrapper">
           <Form :model="modalData" :label-width="100">
-            <Form-item label="脚本名称">
+            <Form-item label="任务名称">
               <Input v-model="modalData.tasksName" placeholder="请输入"></Input>
             </Form-item>
             <Form-item label="脚本类型">
@@ -65,18 +68,24 @@
     data () {
       return {
         formItem:{
-          input1: null
+          input1: null,
+          input2: null,
         },
         columns: [
           {
-            title: '脚本ID',
+            title: '任务ID',
             key: 'scriptId',
             width: 100
           },
           {
-            title: '脚本名称',
+            title: '任务名称',
             key: 'tasksName',
             width: 240
+          },
+          {
+            title: 'scriptPath',
+            key: 'scriptPath',
+            width: 350
           },
           {
             title: '调度任务描述',
@@ -167,7 +176,8 @@
           adoptToken : this.token,
           current: this.currentPage,
           size: this.pageSize,
-          tasksName: this.formItem.input1
+          tasksName: this.formItem.input1,
+          scriptPath: this.formItem.input2
         };
         this.$http.post(this.$store.state.domain+'/tasks/page',qs.stringify(data)).then(res=>{
           this.tableData = res.data.result.result;
