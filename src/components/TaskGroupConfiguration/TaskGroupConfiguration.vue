@@ -165,6 +165,10 @@
               data[i].itemStyle.normal.color = '#000'
               data[i].message = '停用'
             }
+            if (data[i].yesterdaySuccess == 0) {
+              data[i].itemStyle.normal.color = '#636306'
+              data[i].message = '昨日未跑'
+            }
             data[i].name = data[i].groupName
           }
           data.unshift({
@@ -244,6 +248,9 @@
             }
             if (this.chartData[i].groupStatus == 0) {
               this.chartData[i].itemStyle.normal.color = '#000'
+            }
+            if (this.chartData[i].yesterdaySuccess == 0) {
+              this.chartData[i].itemStyle.normal.color = '#636306'
             }
           }
         }
